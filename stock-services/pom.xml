@@ -16,7 +16,6 @@
 
     <modules>
         <module>stock-users</module>
-        <module>stock-ert</module>
         <module>stock-common</module>
     </modules>
 
