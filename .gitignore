@@ -1,0 +1,5 @@
+# Project exclude paths
+/stock-eureka/target/
+/stock-services/stock-common/target/
+/stock-services/stock-ert/target/
+/stock-services/stock-users/target/
