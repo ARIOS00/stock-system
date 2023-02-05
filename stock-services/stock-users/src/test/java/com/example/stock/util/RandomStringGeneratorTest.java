@@ -2,15 +2,16 @@ package com.example.stock.util;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class MD5UtilTest {
+public class RandomStringGeneratorTest {
     @Test
-    public void testInputPassToDBPass() throws Exception {
-        System.out.println(MD5Util.inputPassToDBPass("123456", "sa14asv3556s"));
+    public void testGet() throws Exception {
+        for(int i = 0; i < 10; i++) {
+            System.out.println(RandomStringGenerator.get(MD5Util.SALT_LENGTH));
+        }
     }
 }
