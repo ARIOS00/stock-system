@@ -2,13 +2,13 @@ package com.example.stock.service.impl;
 
 import com.example.stock.dao.UserDao;
 import com.example.stock.entity.User;
-import com.example.stock.exception.StockException;
-import com.example.stock.service.IUserRegister;
+import com.example.stock.service.IUserRegisterService;
 import com.example.stock.util.MD5Util;
 import com.example.stock.util.RandomStringGenerator;
+import com.example.stock.vo.CommonResponse;
+import com.example.stock.vo.ResBean;
 import com.example.stock.vo.UserRegisterRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,26 +17,34 @@ import java.util.Date;
 
 @Slf4j
 @Service
-public class UserRegisterImpl implements IUserRegister {
+public class UserRegisterServiceImpl implements IUserRegisterService {
     private final UserDao userDao;
 
     @Autowired
-    public UserRegisterImpl(UserDao userDao) {
+    public UserRegisterServiceImpl(UserDao userDao) {
         this.userDao = userDao;
     }
 
     @Override
-    public User register(UserRegisterRequest request) throws StockException {
+    public CommonResponse<User> register(UserRegisterRequest request) {
+        CommonResponse<User> response = new CommonResponse<>();
+        response.setCode(ResBean.FAIL.getCode());
         if(request.getId() == null || StringUtils.isEmpty(request.getNickname()) || StringUtils.isEmpty(request.getPassword()))
-            throw new StockException("register fields cannot be empty!");
-        if(userDao.findById(request.getId()) != null)
-            throw new StockException("phone number has been already registered!");
-        if(request.getPassword().length() < 6)
-            throw new StockException("the length of password should not less than 6!");
+            response.setMsg("register fields cannot be empty!");
+        else if(request.getPassword().length() < 6)
+            response.setMsg("the length of password should not less than 6!");
+        else if(userDao.findById(request.getId()) != null)
+            response.setMsg("phone number has been already registered!");
+        else {
+            response.setCode(ResBean.SUCCESS.getCode());
+            response.setMsg("register success!");
 
-        User user = requestToUser(request);
-        userDao.save(user);
-        return user;
+            User user = requestToUser(request);
+            userDao.save(user);
+            response.setContent(user);
+        }
+
+        return response;
     }
 
     private User requestToUser(UserRegisterRequest request) {

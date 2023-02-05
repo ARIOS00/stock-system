@@ -1,8 +1,6 @@
 package com.example.stock.service;
 
-import com.example.stock.entity.User;
 import com.example.stock.exception.StockException;
-import com.example.stock.service.impl.UserRegisterImpl;
 import com.example.stock.vo.UserRegisterRequest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class UserRegisterTest {
     @Autowired
-    IUserRegister userRegister;
+    IUserRegisterService userRegister;
     @Test
     public void testRegister() throws StockException {
         userRegister.register(createRequest());
