@@ -5,9 +5,11 @@ import com.example.stock.entity.User;
 import com.example.stock.service.IUserRegisterService;
 import com.example.stock.util.MD5Util;
 import com.example.stock.util.RandomStringGenerator;
+import com.example.stock.util.UserSDKMapper;
 import com.example.stock.vo.CommonResponse;
 import com.example.stock.vo.ResBean;
 import com.example.stock.vo.UserRegisterRequest;
+import com.example.stock.vo.UserSDK;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +28,8 @@ public class UserRegisterServiceImpl implements IUserRegisterService {
     }
 
     @Override
-    public CommonResponse<User> register(UserRegisterRequest request) {
-        CommonResponse<User> response = new CommonResponse<>();
+    public CommonResponse<UserSDK> register(UserRegisterRequest request) {
+        CommonResponse<UserSDK> response = new CommonResponse<>();
         response.setCode(ResBean.FAIL.getCode());
         if(request.getId() == null || StringUtils.isEmpty(request.getNickname()) || StringUtils.isEmpty(request.getPassword()))
             response.setMsg("register fields cannot be empty!");
@@ -41,7 +43,7 @@ public class UserRegisterServiceImpl implements IUserRegisterService {
 
             User user = requestToUser(request);
             userDao.save(user);
-            response.setContent(user);
+            response.setContent(UserSDKMapper.userToUserSDK(user));
         }
 
         return response;
@@ -63,4 +65,6 @@ public class UserRegisterServiceImpl implements IUserRegisterService {
 
         return user;
     }
+
+
 }

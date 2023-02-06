@@ -1,11 +1,14 @@
 package com.example.stock.entity;
 
+import com.example.stock.serialization.UserSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Date;
 
 @Data
@@ -14,7 +17,8 @@ import java.sql.Date;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "users")
-public class User {
+@JsonSerialize(using = UserSerialize.class)
+public class User implements Serializable {
     @Id
     @Column(name = "id", nullable = false)
     private Long id;
@@ -36,5 +40,4 @@ public class User {
 
     @Column(name = "login_count", nullable = false)
     private Integer loginCount;
-
 }
