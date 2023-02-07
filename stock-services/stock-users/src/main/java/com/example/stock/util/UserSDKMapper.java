@@ -10,7 +10,7 @@ public class UserSDKMapper {
         userSDK.setNickname(user.getNickname());
         userSDK.setRegisterDate(user.getRegisterDate());
         userSDK.setLastLoginDate(user.getLastLoginDate());
-        userSDK.setLoginCount(userSDK.getLoginCount());
+        userSDK.setLoginCount(user.getLoginCount());
         return userSDK;
     }
 }

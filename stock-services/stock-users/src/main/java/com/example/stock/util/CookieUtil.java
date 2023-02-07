@@ -1,5 +1,7 @@
 package com.example.stock.util;
 
+import com.alibaba.fastjson.JSON;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -149,7 +151,9 @@ public final class CookieUtil {
                 cookie.setMaxAge(cookieMaxage);
             if (null != request) {// 设置域名的cookie
                 String domainName = getDomainName(request);
-                System.out.println(domainName);
+                if(domainName.charAt(0) == '.') {
+                    domainName = "host" + domainName;
+                }
                 if (!"localhost".equals(domainName)) {
                     cookie.setDomain(domainName);
                 }
@@ -179,7 +183,6 @@ public final class CookieUtil {
                 cookie.setMaxAge(cookieMaxage);
             if (null != request) {// 设置域名的cookie
                 String domainName = getDomainName(request);
-                System.out.println(domainName);
                 if (!"localhost".equals(domainName)) {
                     cookie.setDomain(domainName);
                 }
@@ -198,6 +201,7 @@ public final class CookieUtil {
         String domainName = null;
 
         String serverName = request.getRequestURL().toString();
+        System.out.println("url: " + request.getRequestURL().toString());
         if (serverName == null || serverName.equals("")) {
             domainName = "";
         } else {

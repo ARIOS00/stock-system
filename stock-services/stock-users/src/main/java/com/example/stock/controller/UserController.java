@@ -1,5 +1,6 @@
 package com.example.stock.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.example.stock.exception.StockException;
 import com.example.stock.service.IUserLoginService;
 import com.example.stock.service.IUserRegisterService;
@@ -7,11 +8,10 @@ import com.example.stock.vo.CommonResponse;
 import com.example.stock.vo.UserLoginRequest;
 import com.example.stock.vo.UserRegisterRequest;
 import com.example.stock.vo.UserSDK;
+import com.netflix.zuul.context.RequestContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,5 +38,12 @@ public class UserController {
     @PostMapping("/login")
     public CommonResponse<UserSDK> login(@RequestBody UserLoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws StockException {
         return userLoginService.login(loginRequest, request, response);
+    }
+
+    @GetMapping("/get")
+    public String get(@CookieValue("userTicket") String cookie) {
+        RequestContext context = RequestContext.getCurrentContext();
+        System.out.println(cookie);
+        return JSON.toJSONString(cookie);
     }
 }

@@ -1,0 +1,31 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: stock-gateway
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8000/eureka/
+
+zuul:
+  prefix: /stock
+  routes:
+    # StockUsers Microservice Route Configuration
+    users:
+      path: /stock-users/**
+      serviceId: eureka-client-stock-users
+      strip-prefix: false
+  host:
+    connect-timeout-millis: 1500
+    socket-timeout-millis: 6000
+  sensitive-headers:
+  add-host-header: true
+
+
+
+# load balancing
+ribbon:
+  ConnectTimeout: 15000
+  ReadTimeout: 15000

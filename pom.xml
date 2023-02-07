@@ -12,6 +12,7 @@
   <modules>
     <module>stock-eureka</module>
     <module>stock-services</module>
+      <module>stock-gateway</module>
   </modules>
 
   <parent>
