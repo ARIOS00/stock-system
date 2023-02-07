@@ -1,9 +1,13 @@
 package com.example.stock.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.example.stock.entity.User;
 import com.example.stock.exception.StockException;
+import com.example.stock.exception.UserException;
 import com.example.stock.service.IUserLoginService;
 import com.example.stock.service.IUserRegisterService;
+import com.example.stock.users.GetUserFromCookie;
+import com.example.stock.util.UserSDKMapper;
 import com.example.stock.vo.CommonResponse;
 import com.example.stock.vo.UserLoginRequest;
 import com.example.stock.vo.UserRegisterRequest;
@@ -21,11 +25,13 @@ import javax.servlet.http.HttpServletResponse;
 public class UserController {
     private final IUserRegisterService userRegisterService;
     private final IUserLoginService userLoginService;
+    private final GetUserFromCookie getUserFromCookie;
 
     @Autowired
-    public UserController(IUserRegisterService userRegisterService, IUserLoginService userLoginService) {
+    public UserController(IUserRegisterService userRegisterService, IUserLoginService userLoginService, GetUserFromCookie getUserFromCookie) {
         this.userRegisterService = userRegisterService;
         this.userLoginService = userLoginService;
+        this.getUserFromCookie = getUserFromCookie;
     }
 
     //localhost:7001/stock-users/register
@@ -36,14 +42,14 @@ public class UserController {
 
     //localhost:7001/stock-users/login
     @PostMapping("/login")
-    public CommonResponse<UserSDK> login(@RequestBody UserLoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws StockException {
+    public UserSDK login(@RequestBody UserLoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws StockException {
         return userLoginService.login(loginRequest, request, response);
     }
 
     @GetMapping("/get")
-    public String get(@CookieValue("userTicket") String cookie) {
-        RequestContext context = RequestContext.getCurrentContext();
-        System.out.println(cookie);
-        return JSON.toJSONString(cookie);
+    public UserSDK get(@CookieValue("userTicket") String cookie) throws Exception {
+        UserSDK userSDK = getUserFromCookie.get(cookie);
+        return userSDK;
     }
+
 }
