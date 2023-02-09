@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface IUserLoginService {
-    UserSDK login(UserLoginRequest LoginRequest, HttpServletRequest request, HttpServletResponse response) throws StockException;
+    UserSDK login(String cookie, UserLoginRequest LoginRequest, HttpServletRequest request, HttpServletResponse response) throws StockException;
 
     UserSDK getUserByCookie(String userTicket,HttpServletRequest request, HttpServletResponse response);
 

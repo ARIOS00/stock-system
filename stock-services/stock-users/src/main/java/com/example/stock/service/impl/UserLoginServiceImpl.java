@@ -38,7 +38,7 @@ public class UserLoginServiceImpl implements IUserLoginService {
         this.redisTemplate = redisTemplate;
     }
     @Override
-    public UserSDK login(UserLoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws StockException {
+    public UserSDK login(String cookie, UserLoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws StockException {
 
         if(null == loginRequest.getId() || StringUtils.isEmpty(loginRequest.getPassword())) {
             throw new StockException("fields can be empty!");
@@ -60,9 +60,7 @@ public class UserLoginServiceImpl implements IUserLoginService {
         String ticket = UUIDUtil.uuid();
 
         Map<String, String> map = userSDK.getMap();
-
         redisTemplate.opsForHash().putAll("user:" + ticket, map);
-//        redisTemplate.opsForValue().set("user:" + ticket, userSDK);
         CookieUtil.setCookie(request, response, "userTicket", ticket);
 
         return userSDK;

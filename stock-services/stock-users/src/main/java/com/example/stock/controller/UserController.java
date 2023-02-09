@@ -36,14 +36,14 @@ public class UserController {
 
     //localhost:7001/stock-users/register
     @PostMapping("/register")
-    public CommonResponse<UserSDK> register(@RequestBody UserRegisterRequest request) throws StockException {
+    public UserSDK register(@RequestBody UserRegisterRequest request) throws StockException {
         return userRegisterService.register(request);
     }
 
     //localhost:7001/stock-users/login
     @PostMapping("/login")
-    public UserSDK login(@RequestBody UserLoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws StockException {
-        return userLoginService.login(loginRequest, request, response);
+    public UserSDK login(@CookieValue("userTicket") String cookie, @RequestBody UserLoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws StockException {
+        return userLoginService.login(cookie, loginRequest, request, response);
     }
 
     @GetMapping("/get")

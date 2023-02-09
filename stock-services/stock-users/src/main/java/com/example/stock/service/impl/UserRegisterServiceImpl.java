@@ -2,6 +2,7 @@ package com.example.stock.service.impl;
 
 import com.example.stock.dao.UserDao;
 import com.example.stock.entity.User;
+import com.example.stock.exception.StockException;
 import com.example.stock.service.IUserRegisterService;
 import com.example.stock.util.MD5Util;
 import com.example.stock.util.RandomStringGenerator;
@@ -28,25 +29,18 @@ public class UserRegisterServiceImpl implements IUserRegisterService {
     }
 
     @Override
-    public CommonResponse<UserSDK> register(UserRegisterRequest request) {
-        CommonResponse<UserSDK> response = new CommonResponse<>();
-        response.setCode(ResBean.FAIL.getCode());
+    public UserSDK register(UserRegisterRequest request) throws StockException {
         if(request.getId() == null || StringUtils.isEmpty(request.getNickname()) || StringUtils.isEmpty(request.getPassword()))
-            response.setMsg("register fields cannot be empty!");
-        else if(request.getPassword().length() < 6)
-            response.setMsg("the length of password should not less than 6!");
-        else if(userDao.findById(request.getId()) != null)
-            response.setMsg("phone number has been already registered!");
-        else {
-            response.setCode(ResBean.SUCCESS.getCode());
-            response.setMsg("register success!");
+            throw new StockException("register fields cannot be empty!");
+        if(request.getPassword().length() < 6)
+            throw new StockException("the length of password should not less than 6!");
+        if(userDao.findById(request.getId()) != null)
+            throw new StockException("phone number has been already registered!");
 
-            User user = requestToUser(request);
-            userDao.save(user);
-            response.setContent(UserSDKMapper.userToUserSDK(user));
-        }
+        User user = requestToUser(request);
+        userDao.save(user);
 
-        return response;
+        return UserSDKMapper.userToUserSDK(user);
     }
 
     private User requestToUser(UserRegisterRequest request) {
@@ -58,7 +52,6 @@ public class UserRegisterServiceImpl implements IUserRegisterService {
         user.setPassword(MD5Util.inputPassToDBPass(request.getPassword(), user.getSalt()));
 
         Date date = new Date();
-//        java.sql.Date sqlDate = new java.sql.Date(date.getTime());
         user.setRegisterDate(date);
         user.setLastLoginDate(date);
         user.setLoginCount(0);

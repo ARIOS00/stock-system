@@ -27,7 +27,7 @@ public class GetUserFromCookie {
         log.info("try to get user info based on cookie: user:{}", cookie);
         Map<Object, Object> map =  redisTemplate.opsForHash().entries("user:" + cookie);
         if(MapUtils.isEmpty(map))
-            throw new UserException("cannot find user info in redis based on cookie: user:" + cookie);
+            throw new UserException("session was cleared!");
         UserSDK userSDK = new UserSDK();
         userSDK = userSDK.getUserSDK(map);
 

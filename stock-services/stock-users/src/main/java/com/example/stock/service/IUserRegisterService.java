@@ -6,5 +6,5 @@ import com.example.stock.vo.UserRegisterRequest;
 import com.example.stock.vo.UserSDK;
 
 public interface IUserRegisterService {
-    CommonResponse<UserSDK> register(UserRegisterRequest request) throws StockException;
+    UserSDK register(UserRegisterRequest request) throws StockException;
 }
