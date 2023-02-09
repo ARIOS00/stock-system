@@ -16,7 +16,7 @@ public class UserSDKSerialize extends JsonSerializer<UserSDK> {
 
         jsonGenerator.writeStringField("id", userSDK.getId().toString());
         jsonGenerator.writeStringField("nickname", userSDK.getNickname());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         jsonGenerator.writeStringField("registerDate", simpleDateFormat.format(userSDK.getRegisterDate()));
         jsonGenerator.writeStringField("lastLoginDate", simpleDateFormat.format(userSDK.getLastLoginDate()));
         jsonGenerator.writeStringField("loginCount", userSDK.getLoginCount().toString());

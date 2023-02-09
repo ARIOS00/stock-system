@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -51,9 +52,8 @@ public class UserLoginServiceImpl implements IUserLoginService {
             throw new StockException("password incorrect!");
         }
         user.setLoginCount(user.getLoginCount() + 1);
-        java.util.Date date = new java.util.Date();
-        java.sql.Date sqlDate = new java.sql.Date(date.getTime());
-        user.setLastLoginDate(sqlDate);
+        Date date = new java.util.Date();
+        user.setLastLoginDate(date);
         userDao.save(user);
         UserSDK userSDK = UserSDKMapper.userToUserSDK(user);
         //generate cookie

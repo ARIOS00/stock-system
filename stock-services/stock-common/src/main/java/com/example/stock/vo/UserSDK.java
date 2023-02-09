@@ -32,8 +32,10 @@ public class UserSDK implements Serializable {
         Map<String, String> map = new HashMap<>();
         map.put("id", this.getId().toString());
         map.put("nickname", this.getNickname());
-        map.put("registerDate", this.getRegisterDate().toString());
-        map.put("lastLoginDate", this.getLastLoginDate().toString());
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        map.put("registerDate", simpleDateFormat.format(this.getRegisterDate()));
+        map.put("lastLoginDate", simpleDateFormat.format(this.getLastLoginDate()));
         map.put("loginCount", this.getLoginCount().toString());
         return map;
     }
@@ -47,7 +49,7 @@ public class UserSDK implements Serializable {
         this.setId(Long.parseLong(map.get("id")));
         this.setNickname(map.get("nickname"));
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         this.setRegisterDate(formatter.parse(map.get("registerDate")));
         this.setLastLoginDate(formatter.parse(map.get("lastLoginDate")));
 

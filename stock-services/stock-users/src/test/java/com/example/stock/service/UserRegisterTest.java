@@ -20,8 +20,8 @@ public class UserRegisterTest {
 
     private UserRegisterRequest createRequest() {
         UserRegisterRequest request = new UserRegisterRequest();
-        request.setId(111222333L);
-        request.setNickname("Jack");
+        request.setId(54321L);
+        request.setNickname("Dodo");
         request.setPassword("123456");
 
         return request;

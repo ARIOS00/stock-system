@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -32,9 +32,11 @@ public class User implements Serializable {
     @Column(name = "salt", nullable = false)
     private String salt;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "register_date", nullable = false)
     private Date registerDate;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "last_login_date", nullable = false)
     private Date lastLoginDate;
 

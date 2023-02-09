@@ -58,9 +58,9 @@ public class UserRegisterServiceImpl implements IUserRegisterService {
         user.setPassword(MD5Util.inputPassToDBPass(request.getPassword(), user.getSalt()));
 
         Date date = new Date();
-        java.sql.Date sqlDate = new java.sql.Date(date.getTime());
-        user.setRegisterDate(sqlDate);
-        user.setLastLoginDate(sqlDate);
+//        java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+        user.setRegisterDate(date);
+        user.setLastLoginDate(date);
         user.setLoginCount(0);
 
         return user;
