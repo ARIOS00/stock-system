@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class UserRegisterTest {
     @Autowired
     IUserRegisterService userRegister;
+
     @Test
     public void testRegister() throws StockException {
         userRegister.register(createRequest());
