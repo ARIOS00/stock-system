@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 @Data
@@ -77,5 +78,28 @@ public class Kline implements Serializable {
         this.setHigh(Double.parseDouble(map.get("high")));
         this.setLow(Double.parseDouble(map.get("low")));
         return this;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof Kline)) {
+            return false;
+        }
+        Kline other = (Kline) obj;
+        return Objects.equals(name, other.name) &&
+                Objects.equals(kdate, other.kdate) &&
+                Objects.equals(close, other.close) &&
+                Objects.equals(volume, other.volume) &&
+                Objects.equals(open, other.open) &&
+                Objects.equals(high, other.high) &&
+                Objects.equals(low, other.low);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, kdate, close, volume, open, high, low);
     }
 }
