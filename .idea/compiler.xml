@@ -11,6 +11,7 @@
         <module name="stock-gateway" />
         <module name="stock-eureka" />
         <module name="stock-users" />
+        <module name="stock-kline" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -24,6 +25,7 @@
       <module name="stock-ert" options="-parameters" />
       <module name="stock-eureka" options="-parameters" />
       <module name="stock-gateway" options="-parameters" />
+      <module name="stock-kline" options="-parameters" />
       <module name="stock-services" options="" />
       <module name="stock-test" options="-parameters" />
       <module name="stock-users" options="-parameters" />
