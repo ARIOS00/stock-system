@@ -1,5 +1,6 @@
 package com.example.stock.entity;
 
+import com.example.stock.serialization.KlineSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +18,7 @@ import java.util.Date;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "k_line")
+@JsonSerialize(using = KlineSerialize.class)
 public class Kline implements Serializable {
     @Id
     @Column(name = "name", nullable = false)
