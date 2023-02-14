@@ -6,10 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -21,9 +18,11 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "k_line")
 public class Kline implements Serializable {
+    @Id
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Id
     @Column(name = "k_date", nullable = false)
     private Date kdate;
 
