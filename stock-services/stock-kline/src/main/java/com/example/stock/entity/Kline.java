@@ -19,6 +19,7 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "k_line")
 @JsonSerialize(using = KlineSerialize.class)
+@IdClass(KlinePK.class)
 public class Kline implements Serializable {
     @Id
     @Column(name = "name", nullable = false)
