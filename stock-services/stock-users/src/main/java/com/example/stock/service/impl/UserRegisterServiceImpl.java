@@ -7,8 +7,6 @@ import com.example.stock.service.IUserRegisterService;
 import com.example.stock.util.MD5Util;
 import com.example.stock.util.RandomStringGenerator;
 import com.example.stock.util.UserSDKMapper;
-import com.example.stock.vo.CommonResponse;
-import com.example.stock.vo.ResBean;
 import com.example.stock.vo.UserRegisterRequest;
 import com.example.stock.vo.UserSDK;
 import lombok.extern.slf4j.Slf4j;
