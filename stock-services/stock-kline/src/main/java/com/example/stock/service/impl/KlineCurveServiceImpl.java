@@ -17,6 +17,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -41,32 +43,28 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
         if(!bloomFilter.isExist(name))
             return null;
         // check the latest date
-        String dateStr = redisTemplate.opsForValue().get("latest_kline_date");
-        if(StringUtils.isEmpty(dateStr))
-            throw new KlineException("latest kline date is missing in redis!");
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = format.parse(dateStr);
-        String key = "kline:" + name + ":" + dateStr;
+        Date date = getLatestDateFromRedis();
 
         // query data in redis or db
-        Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
-        if(!MapUtils.isEmpty(map))
-            return new Kline().getKline(map);
-        Kline kline = klineDao.findKlineByNameAndKdate(name, date);
-        if(null == kline)
-            throw new KlineException("cannot find " + key + " in database!");
-        redisTemplate.opsForHash().putAll(key, kline.getMap());
-        return kline;
+        return queryKline(name, date);
     }
 
     @Override
-    public Kline getKlineByNameAndDate(String name, Date date) throws KlineException {
-
-        return null;
+    public Kline getKlineByNameAndDate(String name, Date date) throws KlineException, ParseException {
+        if(!bloomFilter.isExist(name))
+            return null;
+        Date latestDate = getLatestDateFromRedis();
+        Date earliestDate = new SimpleDateFormat("yyyy-MM-dd").parse("2022-08-10");
+        if(date.after(latestDate) || date.before(earliestDate))
+            return null;
+        return queryKline(name, date);
     }
 
     @Override
     public List<Kline> getKlineCurveByName(String name) throws KlineException {
+        if(!bloomFilter.isExist(name))
+            return null;
+
         return null;
     }
 
@@ -75,4 +73,25 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
         return null;
     }
 
+    private Date getLatestDateFromRedis() throws KlineException, ParseException {
+        String dateStr = redisTemplate.opsForValue().get("latest_kline_date");
+        if(StringUtils.isEmpty(dateStr))
+            throw new KlineException("latest kline date is missing in redis!");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        return format.parse(dateStr);
+    }
+
+    private Kline queryKline(String name, Date date) throws KlineException, ParseException {
+        String key = "kline:" + name + ":" + new SimpleDateFormat("yyyy-MM-dd").format(date);
+        Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
+        if(!MapUtils.isEmpty(map))
+            return new Kline().getKline(map);
+        Kline kline = klineDao.findKlineByNameAndKdate(name, date);
+        if(null == kline)
+            throw new KlineException("cannot find " + key + " in database!");
+        redisTemplate.opsForHash().putAll(key, kline.getMap());
+        Integer expiration = new Random().nextInt(11) + 10;
+        redisTemplate.expire(key, expiration, TimeUnit.HOURS);
+        return kline;
+    }
 }

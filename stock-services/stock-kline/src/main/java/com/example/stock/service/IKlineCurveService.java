@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface IKlineCurveService {
     Kline getLatestKlineByName(String name) throws KlineException, ParseException;
-    Kline getKlineByNameAndDate(String name, Date date) throws KlineException;
+    Kline getKlineByNameAndDate(String name, Date date) throws KlineException, ParseException;
 
     List<Kline> getKlineCurveByName(String name) throws KlineException;
 

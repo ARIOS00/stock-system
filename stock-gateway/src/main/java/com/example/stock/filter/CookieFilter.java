@@ -35,6 +35,11 @@ public class CookieFilter extends AbstractPreZuulFilter {
         HttpServletRequest request = context.getRequest();
         log.info(String.format("%s request to %s", request.getMethod(), request.getRequestURI()));
         Cookie[] cookies = request.getCookies();
+        if(null == cookies) {
+            log.warn("cannot get cookie!");
+            return success();
+        }
+
         for(Cookie cookie : cookies) {
             if(StringUtils.equals("userTicket", cookie.getName())) {
                 log.info("get cookie successfully! {} : {}", cookie.getName(), cookie.getValue());
@@ -42,7 +47,6 @@ public class CookieFilter extends AbstractPreZuulFilter {
                 context.set("user", user);
                 break;
             }
-            log.warn("cannot get cookie!");
         }
         return success();
     }
