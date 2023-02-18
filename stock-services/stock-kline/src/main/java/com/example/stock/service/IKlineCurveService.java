@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface IKlineCurveService {
+    Kline getLatestKlineByName(String name) throws KlineException;
     Kline getKlineByNameAndDate(String name, Date date) throws KlineException;
 
     List<Kline> getKlineCurveByName(String name) throws KlineException;

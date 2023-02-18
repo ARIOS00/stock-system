@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -25,9 +26,15 @@ public class KlineDaoTest {
     StringRedisTemplate redisTemplate;
 
     @Test
-    public void testKlineDao() {
+    public void testKlineDaoSave() {
         List<Kline> klineTSLA =  klineDao.findKlinesByName("TSLA");
         System.out.println(JSON.toJSONString(klineTSLA));
+    }
+
+    @Test
+    public void testKlineDaoFindAllNames() {
+        Set<String> names = klineDao.findAllNames();
+        System.out.println(JSON.toJSONString(names));
     }
 
     @Test
