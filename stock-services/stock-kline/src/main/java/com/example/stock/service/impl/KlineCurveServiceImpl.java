@@ -4,6 +4,7 @@ import com.example.stock.dao.KlineDao;
 import com.example.stock.entity.Kline;
 import com.example.stock.exception.KlineException;
 import com.example.stock.service.IKlineCurveService;
+import com.example.stock.util.GoogleBloomFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,14 +26,20 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
 
     private final StringRedisTemplate redisTemplate;
 
+    private final GoogleBloomFilter bloomFilter;
+
     @Autowired
-    public KlineCurveServiceImpl(KlineDao klineDao, StringRedisTemplate redisTemplate) {
+    public KlineCurveServiceImpl(KlineDao klineDao, StringRedisTemplate redisTemplate, GoogleBloomFilter bloomFilter) {
         this.klineDao = klineDao;
         this.redisTemplate = redisTemplate;
+        this.bloomFilter = bloomFilter;
     }
 
     @Override
     public Kline getLatestKlineByName(String name) throws KlineException, ParseException {
+        // start bloom filter
+        if(!bloomFilter.isExist(name))
+            return null;
         // check the latest date
         String dateStr = redisTemplate.opsForValue().get("latest_kline_date");
         if(StringUtils.isEmpty(dateStr))
@@ -41,7 +48,7 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
         Date date = format.parse(dateStr);
         String key = "kline:" + name + ":" + dateStr;
 
-        // check the name
+        // query data in redis or db
         Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
         if(!MapUtils.isEmpty(map))
             return new Kline().getKline(map);
@@ -54,6 +61,7 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
 
     @Override
     public Kline getKlineByNameAndDate(String name, Date date) throws KlineException {
+
         return null;
     }
 

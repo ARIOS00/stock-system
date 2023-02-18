@@ -89,6 +89,7 @@ public class Kline implements Serializable {
             return false;
         }
         Kline other = (Kline) obj;
+        System.out.println(Objects.equals(kdate, other.kdate));
         return Objects.equals(name, other.name) &&
                 Objects.equals(kdate, other.kdate) &&
                 Objects.equals(close, other.close) &&

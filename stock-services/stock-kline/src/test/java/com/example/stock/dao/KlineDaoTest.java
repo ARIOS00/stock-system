@@ -40,9 +40,11 @@ public class KlineDaoTest {
     @Test
     public void testKlineSaveToRedis() throws ParseException {
         Kline kline = createKline();
+        System.out.println(kline.toString());
         redisTemplate.opsForHash().putAll("testMETA", kline.getMap());
         Kline qKline = new Kline();
         qKline = qKline.getKline(redisTemplate.opsForHash().entries("testMETA"));
+        System.out.println(qKline.toString());
         redisTemplate.delete("testMETA");
         Assert.assertTrue(kline.equals(qKline));
     }

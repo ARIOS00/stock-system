@@ -1,7 +1,11 @@
 package com.example.stock.service;
 
+import com.example.stock.dao.UserDao;
+import com.example.stock.entity.User;
 import com.example.stock.exception.StockException;
+import com.example.stock.users.GetUserFromCookie;
 import com.example.stock.vo.UserRegisterRequest;
+import com.example.stock.vo.UserSDK;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +18,17 @@ public class UserRegisterTest {
     @Autowired
     IUserRegisterService userRegister;
 
+    @Autowired
+    UserDao userDao;
+
+    @Autowired
+    GetUserFromCookie getUserFromCookie;
+
     @Test
-    public void testRegister() throws StockException {
-        userRegister.register(createRequest());
+    public void testRegister() throws Exception {
+//        userRegister.register(createRequest());
+        UserSDK userSDK = getUserFromCookie.get("9c2e586c89d54b89891b2f5212ebc71e");
+        System.out.println(userSDK.getRegisterDate());
     }
 
     private UserRegisterRequest createRequest() {

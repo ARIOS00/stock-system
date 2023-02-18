@@ -1,18 +1,12 @@
 package com.example.stock.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.example.stock.entity.User;
 import com.example.stock.exception.StockException;
-import com.example.stock.exception.UserException;
 import com.example.stock.service.IUserLoginService;
 import com.example.stock.service.IUserRegisterService;
 import com.example.stock.users.GetUserFromCookie;
-import com.example.stock.util.UserSDKMapper;
-import com.example.stock.vo.CommonResponse;
 import com.example.stock.vo.UserLoginRequest;
 import com.example.stock.vo.UserRegisterRequest;
 import com.example.stock.vo.UserSDK;
-import com.netflix.zuul.context.RequestContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
