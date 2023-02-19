@@ -1,5 +1,6 @@
 package com.example.stock.util;
 
+import com.alibaba.fastjson.JSON;
 import com.example.stock.dao.KlineDao;
 import com.google.common.base.Charsets;
 import com.google.common.hash.BloomFilter;
@@ -8,14 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @SuppressWarnings("all")
 public class GoogleBloomFilter {
-    private BloomFilter bloomFilter;
+    private BloomFilter nameBloomFilter;
+
+    private BloomFilter dateBloomFilter;
 
     @Autowired
     private KlineDao klineDao;
@@ -23,13 +29,26 @@ public class GoogleBloomFilter {
     @PostConstruct
     public void initBloomFilter() {
         Set<String> names = klineDao.findAllNames();
-        bloomFilter = BloomFilter.create(Funnels.stringFunnel(Charsets.UTF_8), names.size(), 0.001);
+        Set<Date> dateSet = klineDao.findAllDates();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Set<String> dates = dateSet.stream()
+                .map(date -> format.format(date))
+                .collect(Collectors.toSet());
+        nameBloomFilter = BloomFilter.create(Funnels.stringFunnel(Charsets.UTF_8), names.size(), 0.0002);
+        dateBloomFilter = BloomFilter.create(Funnels.stringFunnel(Charsets.UTF_8), dates.size(), 0.0002);
         for(String name : names) {
-            bloomFilter.put(name);
+            nameBloomFilter.put(name);
+        }
+        for(String date : dates) {
+            dateBloomFilter.put(date);
         }
     }
 
-    public boolean isExist(String str) {
-        return bloomFilter.mightContain(str);
+    public boolean nameIsExist(String str) {
+        return nameBloomFilter.mightContain(str);
+    }
+
+    public boolean dateIsExist(Date date) {
+        return dateBloomFilter.mightContain(new SimpleDateFormat("yyyy-MM-dd").format(date));
     }
 }

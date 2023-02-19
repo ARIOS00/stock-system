@@ -15,4 +15,7 @@ public interface KlineDao extends JpaRepository<Kline, Integer> {
 
     @Query("SELECT k.name FROM Kline k")
     Set<String> findAllNames();
+
+    @Query("SELECT k.kdate FROM Kline k")
+    Set<Date> findAllDates();
 }

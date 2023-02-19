@@ -13,5 +13,5 @@ public interface IKlineCurveService {
 
     List<Kline> getKlineCurveByName(String name) throws KlineException;
 
-    List<Kline> getKlineCurveByNameAndDuration(String name, Date startDate, Date endDate) throws KlineException;
+    List<Kline> getKlineCurveByNameAndDuration(String name, Date startDate, Date endDate) throws KlineException, ParseException;
 }
