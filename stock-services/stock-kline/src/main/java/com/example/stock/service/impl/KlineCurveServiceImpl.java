@@ -7,6 +7,7 @@ import com.example.stock.entity.Kline;
 import com.example.stock.entity.KlineDefault;
 import com.example.stock.exception.KlineException;
 import com.example.stock.service.IKlineCurveService;
+import com.example.stock.util.CSVHelper;
 import com.example.stock.util.GoogleBloomFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -17,10 +18,13 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.ByteArrayInputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -88,53 +92,56 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
             throw new KlineException("start date should be before the end date!");
         if(startDate.before(this.startDate) || endDate.after(getLatestDateFromRedis()))
             return null;
-        List<Kline> curve = new LinkedList<>();
+
         Calendar currentDay = Calendar.getInstance();
         Calendar endDay = Calendar.getInstance();
         currentDay.setTime(startDate);
-        currentDay.add(Calendar.DAY_OF_MONTH, -1);
         endDay.setTime(endDate);
 
         String baseKey = "kline:" + name + ":";
-        KlineDefault klineDefault = (KlineDefault) redisTemplate.opsForValue().get("kline:AMZN:2022-12-06");
-        System.out.println(klineDefault);
+        List<String> keys = new LinkedList<>();
+        List<Date> dates = new LinkedList<>();
 
+        while(currentDay.before(endDay) || currentDay.equals(endDay)) {
+            if(bloomFilter.dateIsExist(currentDay.getTime())) {
+                String key = baseKey + new SimpleDateFormat("yyyy-MM-dd").format(currentDay.getTime());
+                keys.add(key);
+                dates.add(currentDay.getTime());
+            }
+            currentDay.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        List<Object> objects = redisTemplate.opsForValue().multiGet(keys);
+        if(null == objects)
+            throw new KlineException("multi get null");
+        int length = objects.size();
         SessionCallback<Object> sessionCallback = new SessionCallback<Object> () {
             @Override
             public Object execute(RedisOperations ops) throws DataAccessException {
-                int num = 0;
-                while(currentDay.before(endDay) || currentDay.equals(endDay)) {
-                    currentDay.add(Calendar.DAY_OF_MONTH, 1);
-                    if(!bloomFilter.dateIsExist(currentDay.getTime()))
-                        continue;
-                    String key = baseKey + new SimpleDateFormat("yyyy-MM-dd").format(currentDay.getTime());
-                    KlineDefault klineDefault = (KlineDefault) redisTemplate.opsForValue().get("kline:AMZN:2022-12-06");
-                    System.out.println(key);
-                    System.out.println(klineDefault);
-                    if(null != klineDefault) {
-                        log.warn("from redis");
-                        curve.add(new Kline(klineDefault));
-                        continue;
+                for(int i = 0; i < length; i++) {
+                    if(null == objects.get(i)) {
+                        Kline obj = klineDao.findKlineByNameAndKdate(name, dates.get(i));
+                        objects.set(i, obj);
+                        Integer expiration = new Random().nextInt(KlineConst.EXPIRE_SEED) + KlineConst.EXPIRE_SEED;
+                        ops.opsForValue().set(keys.get(i), new KlineDefault(obj), Duration.ofSeconds(expiration));
                     }
-                    Kline kline = klineDao.findKlineByNameAndKdate(name, currentDay.getTime());
-                    if(null == kline) {
-                        log.error("cannot find " + key + " in database!");
-                        continue;
-                    }
-                    num++;
-                    ops.opsForValue().set(key, new KlineDefault(kline));
-                    Integer expiration = new Random().nextInt(KlineConst.EXPIRE_SEED) + KlineConst.EXPIRE_SEED;
-                    ops.expire(key, expiration, TimeUnit.SECONDS);
-                    curve.add(kline);
                 }
-                log.warn("times: "+num);
                 return null;
             }
         };
+
         redisTemplate.executePipelined(sessionCallback);
         log.info("Redis Pipeline executed!");
 
-        return curve;
+        return objectsToKlines(objects);
+    }
+
+    @Override
+    public ByteArrayInputStream getKlineCSVByName(String name) throws KlineException, ParseException {
+        if(!bloomFilter.nameIsExist(name))
+            return null;
+        List<Kline> curve = getKlineCurveByName(name);
+        return CSVHelper.tutorialsToCSV(curve);
     }
 
     private Date getLatestDateFromRedis() throws KlineException, ParseException {
@@ -163,18 +170,15 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
         return kline;
     }
 
-//    private Kline queryKline(String name, Date date) throws KlineException, ParseException {
-//        String key = "kline:" + name + ":" + new SimpleDateFormat("yyyy-MM-dd").format(date);
-//        Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
-//        if(!MapUtils.isEmpty(map))
-//            return new Kline().getKline(map);
-//        Kline kline = klineDao.findKlineByNameAndKdate(name, date);
-//        if(null == kline) {
-//            throw new KlineException("cannot find " + key + " in database!");
-//        }
-//        redisTemplate.opsForHash().putAll(key, kline.getMap());
-//        Integer expiration = new Random().nextInt(KlineConst.EXPIRE_SEED) + KlineConst.EXPIRE_SEED;
-//        redisTemplate.expire(key, expiration, TimeUnit.SECONDS);
-//        return kline;
-//    }
+    private List<Kline> objectsToKlines(List<Object> objects) {
+        List<Kline> klines = objects.stream().map(object -> {
+            try {
+                return new Kline((KlineDefault) object);
+            }catch (Exception e) {
+                return (Kline) object;
+            }
+        }).collect(Collectors.toList());
+        return klines;
+    }
+
 }

@@ -57,3 +57,4 @@ info:
 logging:
   level:
     com.example.stock: debug
+

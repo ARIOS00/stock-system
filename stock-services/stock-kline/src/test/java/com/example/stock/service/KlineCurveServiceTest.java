@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.validation.constraints.AssertTrue;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 @SpringBootTest
@@ -29,6 +30,14 @@ public class KlineCurveServiceTest {
 
     @Autowired
     private KlineDao klineDao;
+
+    @Test
+    public void testtt() {
+        List<String> list = new LinkedList<>();
+        list.add(null);
+        list.add(null);
+        System.out.println(list.indexOf(null));
+    }
 
     @Test
     public void testSave() throws Exception {

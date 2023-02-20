@@ -57,3 +57,12 @@ info:
 logging:
   level:
     com.example.stock: debug
+    logging:
+      level:
+        org:
+          springframework:
+            web:
+              servlet:
+                mvc:
+                  method:
+                    annotation=TRACE:
