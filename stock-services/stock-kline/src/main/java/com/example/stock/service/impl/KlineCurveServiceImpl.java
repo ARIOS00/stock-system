@@ -1,5 +1,6 @@
 package com.example.stock.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.example.stock.consts.KlineConst;
 import com.example.stock.dao.KlineDao;
 import com.example.stock.entity.Kline;
@@ -10,10 +11,12 @@ import com.example.stock.util.GoogleBloomFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.*;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,7 +28,7 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
 
     private final KlineDao klineDao;
 
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     private final GoogleBloomFilter bloomFilter;
 
@@ -33,8 +36,13 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
 
     private Date startDate;
 
+    @PostConstruct
+    public void init() {
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(KlineDefault.class));
+    }
+
     @Autowired
-    public KlineCurveServiceImpl(KlineDao klineDao, RedisTemplate redisTemplate, GoogleBloomFilter bloomFilter, StringRedisTemplate stringRedisTemplate) throws ParseException {
+    public KlineCurveServiceImpl(KlineDao klineDao, RedisTemplate<String, Object> redisTemplate, GoogleBloomFilter bloomFilter, StringRedisTemplate stringRedisTemplate) throws ParseException {
         this.klineDao = klineDao;
         this.redisTemplate = redisTemplate;
         this.bloomFilter = bloomFilter;
@@ -84,12 +92,48 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
         Calendar currentDay = Calendar.getInstance();
         Calendar endDay = Calendar.getInstance();
         currentDay.setTime(startDate);
+        currentDay.add(Calendar.DAY_OF_MONTH, -1);
         endDay.setTime(endDate);
-        while(currentDay.before(endDay) || currentDay.equals(endDay)) {
-            if(bloomFilter.dateIsExist(currentDay.getTime()))
-                curve.add(queryKline(name, currentDay.getTime()));
-            currentDay.add(Calendar.DAY_OF_MONTH, 1);
-        }
+
+        String baseKey = "kline:" + name + ":";
+        KlineDefault klineDefault = (KlineDefault) redisTemplate.opsForValue().get("kline:AMZN:2022-12-06");
+        System.out.println(klineDefault);
+
+        SessionCallback<Object> sessionCallback = new SessionCallback<Object> () {
+            @Override
+            public Object execute(RedisOperations ops) throws DataAccessException {
+                int num = 0;
+                while(currentDay.before(endDay) || currentDay.equals(endDay)) {
+                    currentDay.add(Calendar.DAY_OF_MONTH, 1);
+                    if(!bloomFilter.dateIsExist(currentDay.getTime()))
+                        continue;
+                    String key = baseKey + new SimpleDateFormat("yyyy-MM-dd").format(currentDay.getTime());
+                    KlineDefault klineDefault = (KlineDefault) redisTemplate.opsForValue().get("kline:AMZN:2022-12-06");
+                    System.out.println(key);
+                    System.out.println(klineDefault);
+                    if(null != klineDefault) {
+                        log.warn("from redis");
+                        curve.add(new Kline(klineDefault));
+                        continue;
+                    }
+                    Kline kline = klineDao.findKlineByNameAndKdate(name, currentDay.getTime());
+                    if(null == kline) {
+                        log.error("cannot find " + key + " in database!");
+                        continue;
+                    }
+                    num++;
+                    ops.opsForValue().set(key, new KlineDefault(kline));
+                    Integer expiration = new Random().nextInt(KlineConst.EXPIRE_SEED) + KlineConst.EXPIRE_SEED;
+                    ops.expire(key, expiration, TimeUnit.SECONDS);
+                    curve.add(kline);
+                }
+                log.warn("times: "+num);
+                return null;
+            }
+        };
+        redisTemplate.executePipelined(sessionCallback);
+        log.info("Redis Pipeline executed!");
+
         return curve;
     }
 
@@ -104,8 +148,11 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
     private Kline queryKline(String name, Date date) throws KlineException, ParseException {
         String key = "kline:" + name + ":" + new SimpleDateFormat("yyyy-MM-dd").format(date);
         KlineDefault klineDefault = (KlineDefault) redisTemplate.opsForValue().get(key);
-        if(null != klineDefault)
+        if(null != klineDefault) {
+            log.warn("from redis");
             return new Kline(klineDefault);
+        }
+
         Kline kline = klineDao.findKlineByNameAndKdate(name, date);
         if(null == kline) {
             log.error("cannot find " + key + " in database!");
