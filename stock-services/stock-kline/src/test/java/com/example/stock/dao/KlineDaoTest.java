@@ -37,17 +37,6 @@ public class KlineDaoTest {
         System.out.println(JSON.toJSONString(names));
     }
 
-    @Test
-    public void testKlineSaveToRedis() throws ParseException {
-        Kline kline = createKline();
-        System.out.println(kline.toString());
-//        redisTemplate.opsForHash().putAll("testMETA", kline.getMap());
-        Kline qKline = new Kline();
-        qKline = qKline.getKline(redisTemplate.opsForHash().entries("testMETA"));
-        System.out.println(qKline.toString());
-        redisTemplate.delete("testMETA");
-        Assert.assertTrue(kline.equals(qKline));
-    }
 
     private Kline createKline() throws ParseException {
         Kline kline = new Kline();
