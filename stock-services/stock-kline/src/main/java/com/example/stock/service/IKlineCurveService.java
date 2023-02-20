@@ -11,7 +11,7 @@ public interface IKlineCurveService {
     Kline getLatestKlineByName(String name) throws KlineException, ParseException;
     Kline getKlineByNameAndDate(String name, Date date) throws KlineException, ParseException;
 
-    List<Kline> getKlineCurveByName(String name) throws KlineException;
+    List<Kline> getKlineCurveByName(String name) throws KlineException, ParseException;
 
     List<Kline> getKlineCurveByNameAndDuration(String name, Date startDate, Date endDate) throws KlineException, ParseException;
 }

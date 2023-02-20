@@ -14,6 +14,8 @@ public class KlineSerialize extends JsonSerializer<Kline> {
     public void serialize(Kline kline, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
+        jsonGenerator.writeStringField("@class", kline.getClass().getName());
+
         jsonGenerator.writeStringField("name", kline.getName().toString());
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
@@ -32,17 +33,17 @@ public class KlineController {
     }
 
     @GetMapping("/kline")
-    public Kline getLatestKlineByNameAndDate(@RequestParam String name, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) throws Exception {
+    public Kline getLatestKlineByNameAndDate(@RequestParam String name, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) throws KlineException, ParseException {
         return klineCurveService.getKlineByNameAndDate(name, date);
     }
 
     @GetMapping("/kline_intact_curve")
-    public List<Kline> getKlineCurveByName(@RequestParam String name) throws KlineException {
+    public List<Kline> getKlineCurveByName(@RequestParam String name) throws KlineException, ParseException {
         return klineCurveService.getKlineCurveByName(name);
     }
 
     @GetMapping("/kline_curve")
-    public List<Kline> getKlineCurveByNameAndDuration(@RequestParam String name, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) throws Exception {
+    public List<Kline> getKlineCurveByNameAndDuration(@RequestParam String name, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) throws KlineException, ParseException {
         return  klineCurveService.getKlineCurveByNameAndDuration(name, startDate, endDate);
     }
 }

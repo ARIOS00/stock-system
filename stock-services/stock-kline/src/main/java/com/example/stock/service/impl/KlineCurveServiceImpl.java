@@ -3,15 +3,14 @@ package com.example.stock.service.impl;
 import com.example.stock.consts.KlineConst;
 import com.example.stock.dao.KlineDao;
 import com.example.stock.entity.Kline;
+import com.example.stock.entity.KlineDefault;
 import com.example.stock.exception.KlineException;
 import com.example.stock.service.IKlineCurveService;
 import com.example.stock.util.GoogleBloomFilter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -26,19 +25,22 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
 
     private final KlineDao klineDao;
 
-    private final StringRedisTemplate redisTemplate;
+    private final RedisTemplate redisTemplate;
 
     private final GoogleBloomFilter bloomFilter;
+
+    private final StringRedisTemplate stringRedisTemplate;
 
     private Date startDate;
 
     @Autowired
-    public KlineCurveServiceImpl(KlineDao klineDao, StringRedisTemplate redisTemplate, GoogleBloomFilter bloomFilter) throws ParseException {
+    public KlineCurveServiceImpl(KlineDao klineDao, RedisTemplate redisTemplate, GoogleBloomFilter bloomFilter, StringRedisTemplate stringRedisTemplate) throws ParseException {
         this.klineDao = klineDao;
         this.redisTemplate = redisTemplate;
         this.bloomFilter = bloomFilter;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         this.startDate = format.parse(KlineConst.START_DATE);
+        this.stringRedisTemplate = stringRedisTemplate;
     }
 
     @Override
@@ -56,17 +58,18 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
     public Kline getKlineByNameAndDate(String name, Date date) throws KlineException, ParseException {
         if(!bloomFilter.nameIsExist(name))
             return null;
-        Date latestDate = getLatestDateFromRedis();
         if(!bloomFilter.dateIsExist(date))
             return null;
         return queryKline(name, date);
     }
 
     @Override
-    public List<Kline> getKlineCurveByName(String name) throws KlineException {
+    public List<Kline> getKlineCurveByName(String name) throws KlineException, ParseException {
         if(!bloomFilter.nameIsExist(name))
             return null;
-        return klineDao.findKlinesByName(name);
+        Date startDate = this.startDate;
+        Date endDate = getLatestDateFromRedis();
+        return getKlineCurveByNameAndDuration(name, startDate, endDate);
     }
 
     @Override
@@ -91,7 +94,7 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
     }
 
     private Date getLatestDateFromRedis() throws KlineException, ParseException {
-        String dateStr = redisTemplate.opsForValue().get("latest_kline_date");
+        String dateStr = stringRedisTemplate.opsForValue().get("latest_kline_date");
         if(StringUtils.isEmpty(dateStr))
             throw new KlineException("latest kline date is missing in redis!");
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -100,16 +103,31 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
 
     private Kline queryKline(String name, Date date) throws KlineException, ParseException {
         String key = "kline:" + name + ":" + new SimpleDateFormat("yyyy-MM-dd").format(date);
-        Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
-        if(!MapUtils.isEmpty(map))
-            return new Kline().getKline(map);
+        KlineDefault klineDefault = (KlineDefault) redisTemplate.opsForValue().get(key);
+        if(null != klineDefault)
+            return new Kline(klineDefault);
         Kline kline = klineDao.findKlineByNameAndKdate(name, date);
         if(null == kline) {
-            throw new KlineException("cannot find " + key + " in database!");
+            log.error("cannot find " + key + " in database!");
         }
-        redisTemplate.opsForHash().putAll(key, kline.getMap());
+        redisTemplate.opsForValue().set(key, new KlineDefault(kline));
         Integer expiration = new Random().nextInt(KlineConst.EXPIRE_SEED) + KlineConst.EXPIRE_SEED;
         redisTemplate.expire(key, expiration, TimeUnit.SECONDS);
         return kline;
     }
+
+//    private Kline queryKline(String name, Date date) throws KlineException, ParseException {
+//        String key = "kline:" + name + ":" + new SimpleDateFormat("yyyy-MM-dd").format(date);
+//        Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
+//        if(!MapUtils.isEmpty(map))
+//            return new Kline().getKline(map);
+//        Kline kline = klineDao.findKlineByNameAndKdate(name, date);
+//        if(null == kline) {
+//            throw new KlineException("cannot find " + key + " in database!");
+//        }
+//        redisTemplate.opsForHash().putAll(key, kline.getMap());
+//        Integer expiration = new Random().nextInt(KlineConst.EXPIRE_SEED) + KlineConst.EXPIRE_SEED;
+//        redisTemplate.expire(key, expiration, TimeUnit.SECONDS);
+//        return kline;
+//    }
 }

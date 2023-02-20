@@ -1,7 +1,6 @@
 package com.example.stock.entity;
 
 import com.example.stock.serialization.KlineSerialize;
-import com.example.stock.vo.UserSDK;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,56 +27,66 @@ import java.util.Objects;
 public class Kline implements Serializable {
     @Id
     @Column(name = "name", nullable = false)
-    private String name;
+    protected String name;
 
     @Id
     @Column(name = "k_date", nullable = false)
-    private Date kdate;
+    protected Date kdate;
 
     @Column(name = "close", nullable = false)
-    private Double close;
+    protected Double close;
 
     @Column(name = "volume", nullable = false)
-    private Double volume;
+    protected Double volume;
 
     @Column(name = "open", nullable = false)
-    private Double open;
+    protected Double open;
 
     @Column(name = "high", nullable = false)
-    private Double high;
+    protected Double high;
 
     @Column(name = "low", nullable = false)
-    private Double low;
+    protected Double low;
 
-    public Map<String, String> getMap() {
-        Map<String, String> map = new HashMap<>();
-        map.put("name", this.getName());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        map.put("kdate", simpleDateFormat.format(this.getKdate()));
-        map.put("close", this.getClose().toString());
-        map.put("volume", this.getVolume().toString());
-        map.put("open", this.getOpen().toString());
-        map.put("high", this.getHigh().toString());
-        map.put("low", this.getLow().toString());
-        return map;
+    public Kline(KlineDefault kline) {
+        this.setName(kline.getName());
+        this.setKdate(kline.getKdate());
+        this.setClose(kline.getClose());
+        this.setVolume(kline.getVolume());
+        this.setOpen(kline.getOpen());
+        this.setHigh(kline.getHigh());
+        this.setLow(kline.getLow());
     }
 
-    public Kline getKline(Map<Object, Object> objMap) throws ParseException {
-        Map<String, String> map = new HashMap<>();
-        for (Map.Entry<Object, Object> entry : objMap.entrySet()) {
-            map.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
-        }
+//    public Map<String, String> getMap() {
+//        Map<String, String> map = new HashMap<>();
+//        map.put("name", this.getName());
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//        map.put("kdate", simpleDateFormat.format(this.getKdate()));
+//        map.put("close", this.getClose().toString());
+//        map.put("volume", this.getVolume().toString());
+//        map.put("open", this.getOpen().toString());
+//        map.put("high", this.getHigh().toString());
+//        map.put("low", this.getLow().toString());
+//        return map;
+//    }
 
-        this.setName(map.get("name"));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        this.setKdate(formatter.parse(map.get("kdate")));
-        this.setClose(Double.parseDouble(map.get("close")));
-        this.setVolume(Double.parseDouble(map.get("volume")));
-        this.setOpen(Double.parseDouble(map.get("open")));
-        this.setHigh(Double.parseDouble(map.get("high")));
-        this.setLow(Double.parseDouble(map.get("low")));
-        return this;
-    }
+//    public Kline getKline(Map<Object, Object> objMap) throws ParseException {
+//        Map<String, String> map = new HashMap<>();
+//        for (Map.Entry<Object, Object> entry : objMap.entrySet()) {
+//            map.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+//        }
+//
+//        this.setName(map.get("name"));
+//        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//        this.setKdate(formatter.parse(map.get("kdate")));
+//        this.setClose(Double.parseDouble(map.get("close")));
+//        this.setVolume(Double.parseDouble(map.get("volume")));
+//        this.setOpen(Double.parseDouble(map.get("open")));
+//        this.setHigh(Double.parseDouble(map.get("high")));
+//        this.setLow(Double.parseDouble(map.get("low")));
+//        return this;
+//    }
 
     @Override
     public boolean equals(Object obj) {
