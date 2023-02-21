@@ -1,5 +1,6 @@
 package com.example.stock.service.impl;
 
+import com.example.stock.consts.KlineConst;
 import com.example.stock.entity.Kline;
 import com.example.stock.exception.KlineException;
 import com.example.stock.exception.UserException;
@@ -24,7 +25,16 @@ public class KlineUpdateServiceImpl implements IKlineUpdateService {
         if(klines.size() > 100)
             throw new KlineException(("maximum 100 kline points per time!"));
 
-
         return null;
+    }
+
+    public <T> void splitList(List<T> list, List<List<T>> res) {
+        if(list.size() <= KlineConst.MAX_UPDATE_NUM){
+            res.add(list);
+            return;
+        }
+        int mid = list.size() / 2;
+        splitList(list.subList(0, mid), res);
+        splitList(list.subList(mid+1, list.size()), res);
     }
 }
