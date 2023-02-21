@@ -2,8 +2,6 @@ package com.example.stock.service;
 
 import com.alibaba.fastjson.JSON;
 import com.example.stock.entity.Kline;
-import com.example.stock.exception.KlineException;
-import com.example.stock.exception.UserException;
 import com.example.stock.service.impl.KlineUpdateServiceImpl;
 import com.example.stock.vo.UserSDK;
 import org.junit.Test;

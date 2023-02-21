@@ -5,5 +5,5 @@ public class KlineConst {
 
     public static final Integer EXPIRE_SEED = 20;
 
-    public static final Integer MAX_UPDATE_NUM = 3;
+    public static final Integer MAX_UPDATE_NUM = 50;
 }
