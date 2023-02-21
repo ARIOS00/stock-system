@@ -35,14 +35,14 @@ public class AsyncServiceImpl implements IAsyncService {
     @Async("getAsyncExecutor")
     @Override
     public void asyncUpdateKlineCurve(List<Kline> klines) {
-        log.info("async task started, thread name: {}", Thread.currentThread().getName());
+        log.info("async task started, thread name: {}, length of updating list: {}", Thread.currentThread().getName(), klines.size());
         SessionCallback<Object> sessionCallback = new SessionCallback<Object> () {
             @Override
             public Object execute(RedisOperations ops) throws DataAccessException {
                 for(Kline kline : klines) {
                     if(kline == null)
                         continue;
-                    String key = "kline:" + kline.getName() + format.format(kline.getKdate());
+                    String key = "kline:" + kline.getName() + ":" + format.format(kline.getKdate());
                     Integer expiration = new Random().nextInt(KlineConst.EXPIRE_SEED) + KlineConst.EXPIRE_SEED;
                     ops.opsForValue().set(key, new KlineDefault(kline), Duration.ofSeconds(expiration));
                     klineDao.save(kline);
@@ -53,5 +53,6 @@ public class AsyncServiceImpl implements IAsyncService {
 
         redisTemplate.executePipelined(sessionCallback);
         log.info("Redis Pipeline executed!");
+        log.info("async task ended, thread name: {}", Thread.currentThread().getName());
     }
 }

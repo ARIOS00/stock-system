@@ -2,7 +2,11 @@ package com.example.stock.controller;
 
 import com.example.stock.entity.Kline;
 import com.example.stock.exception.KlineException;
+import com.example.stock.exception.UserException;
 import com.example.stock.service.IKlineCurveService;
+import com.example.stock.service.IKlineUpdateService;
+import com.example.stock.users.GetUserFromCookie;
+import com.example.stock.vo.UserSDK;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -11,9 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
 import java.text.ParseException;
@@ -25,10 +27,15 @@ import java.util.List;
 public class KlineController {
     private final IKlineCurveService klineCurveService;
 
+    private final IKlineUpdateService klineUpdateService;
+
+    private final GetUserFromCookie getUserFromCookie;
 
     @Autowired
-    public KlineController(IKlineCurveService klineCurveService) {
+    public KlineController(IKlineCurveService klineCurveService, IKlineUpdateService klineUpdateService, GetUserFromCookie getUserFromCookie) {
         this.klineCurveService = klineCurveService;
+        this.klineUpdateService = klineUpdateService;
+        this.getUserFromCookie = getUserFromCookie;
     }
 
     // localhost:7002/stock-kline/kline
@@ -68,5 +75,11 @@ public class KlineController {
 
         System.out.println(response);
         return response;
+    }
+
+    @PostMapping("/kline_curve")
+    public List<Kline> klineCurveUpdate(@CookieValue("userTicket") String cookie, @RequestBody List<Kline> klines) throws Exception {
+        UserSDK userSDK = getUserFromCookie.get(cookie);
+        return klineUpdateService.klineCurveUpdate(klines, userSDK);
     }
 }

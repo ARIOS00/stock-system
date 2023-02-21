@@ -8,5 +8,5 @@ import com.example.stock.vo.UserSDK;
 import java.util.List;
 
 public interface IKlineUpdateService {
-    public List<Kline> KlineCurveUpdate(List<Kline> klines, UserSDK userSDK) throws KlineException, UserException;
+    public List<Kline> klineCurveUpdate(List<Kline> klines, UserSDK userSDK) throws KlineException, UserException;
 }
