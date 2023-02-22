@@ -21,6 +21,10 @@ zuul:
       path: /stock-kline/**
       serviceId: eureka-client-stock-kline
       strip-prefix: false
+    trade:
+      path: /stock-trade/**
+      serviceId: eureka-client-stock-trade
+      strip-prefix: false
   host:
     connect-timeout-millis: 1500
     socket-timeout-millis: 6000

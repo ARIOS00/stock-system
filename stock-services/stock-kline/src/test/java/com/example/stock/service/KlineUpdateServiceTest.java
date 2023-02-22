@@ -30,8 +30,8 @@ public class KlineUpdateServiceTest {
     public void testKlineCurveUpdate() throws Exception {
         String name = "test";
         List<Kline> klines = new LinkedList<>();
-        for(int i = 0; i < 10; i++) {
-            klines.add(mockKline(name + i));
+        for(int i = 0; i < 100; i++) {
+            klines.add(mockKline(name));
         }
         System.out.println("klines: " + klines.size());
         klineUpdateService.klineCurveUpdate(klines, mockUserSDK());

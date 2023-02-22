@@ -7,6 +7,7 @@ import com.example.stock.entity.KlineDefault;
 import com.example.stock.service.IAsyncService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
@@ -45,7 +46,12 @@ public class AsyncServiceImpl implements IAsyncService {
                     String key = "kline:" + kline.getName() + ":" + format.format(kline.getKdate());
                     Integer expiration = new Random().nextInt(KlineConst.EXPIRE_SEED) + KlineConst.EXPIRE_SEED;
                     ops.opsForValue().set(key, new KlineDefault(kline), Duration.ofSeconds(expiration));
-                    klineDao.save(kline);
+                    try {
+                        klineDao.save(kline);
+                    } catch (DataIntegrityViolationException e) {
+                        log.warn("duplicated data to db detected!");
+                    }
+
                 }
                 return null;
             }

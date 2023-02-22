@@ -1,11 +1,11 @@
 server:
-  port: 7002
+  port: 7003
   servlet:
-    context-path: /stock-kline
+    context-path: /stock-trade
 
 spring:
   application:
-    name: eureka-client-stock-kline
+    name: eureka-client-stock-trade
   jpa:
     show-sql: true
     hibernate:
@@ -47,9 +47,9 @@ eureka:
 
 info:
   app:
-    name: stock-kline
+    name: stock-trade
     groupId: com.example.stock
-    artifactId: stock-kline
+    artifactId: stock-trade
     version: 1.0-SNAPSHOT
 
 # ------------------------------------------------------------------------------------------------------

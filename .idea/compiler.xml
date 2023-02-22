@@ -10,6 +10,7 @@
         <module name="stock-common" />
         <module name="stock-gateway" />
         <module name="stock-eureka" />
+        <module name="stock-trade" />
         <module name="stock-users" />
         <module name="stock-kline" />
       </profile>
@@ -28,6 +29,7 @@
       <module name="stock-kline" options="-parameters" />
       <module name="stock-services" options="" />
       <module name="stock-test" options="-parameters" />
+      <module name="stock-trade" options="-parameters" />
       <module name="stock-users" options="-parameters" />
     </option>
   </component>

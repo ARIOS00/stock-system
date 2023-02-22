@@ -1,6 +1,5 @@
 package com.example.stock.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.example.stock.consts.KlineConst;
 import com.example.stock.dao.KlineDao;
 import com.example.stock.entity.Kline;
@@ -156,7 +155,6 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
         String key = "kline:" + name + ":" + new SimpleDateFormat("yyyy-MM-dd").format(date);
         KlineDefault klineDefault = (KlineDefault) redisTemplate.opsForValue().get(key);
         if(null != klineDefault) {
-            log.warn("from redis");
             return new Kline(klineDefault);
         }
 
@@ -180,5 +178,4 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
         }).collect(Collectors.toList());
         return klines;
     }
-
 }

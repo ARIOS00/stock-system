@@ -82,4 +82,10 @@ public class KlineController {
         UserSDK userSDK = getUserFromCookie.get(cookie);
         return klineUpdateService.klineCurveUpdate(klines, userSDK);
     }
+
+    @PostMapping("/kline_curve_mock")
+    public List<Kline> klineCurveUpdateMock(@RequestBody List<Kline> klines) throws Exception {
+        UserSDK userSDK = new UserSDK();
+        return klineUpdateService.klineCurveUpdate(klines, userSDK);
+    }
 }

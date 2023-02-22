@@ -18,6 +18,7 @@
         <module>stock-users</module>
         <module>stock-common</module>
         <module>stock-kline</module>
+        <module>stock-trade</module>
     </modules>
 
 </project>

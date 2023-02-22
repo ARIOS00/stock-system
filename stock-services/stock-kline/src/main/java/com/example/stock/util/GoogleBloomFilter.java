@@ -28,7 +28,6 @@ public class GoogleBloomFilter {
 
     @PostConstruct
     public void initBloomFilter() {
-        System.out.println("zzzzzzzzzzz");
         Set<String> names = klineDao.findAllNames();
         Set<Date> dateSet = klineDao.findAllDates();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
