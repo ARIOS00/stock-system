@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -26,13 +27,13 @@ public class Trade implements Serializable {
     @Id
     @Column(name = "fresh_time", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    protected String freshTime;
+    protected Date freshTime;
 
     @Column(name = "price", nullable = false)
     protected Double price;
 
-    @Column(name = "change", nullable = false)
-    protected Double change;
+    @Column(name = "diff", nullable = false)
+    protected Double diff;
 
     @Column(name = "rate", nullable = false)
     protected Double rate;
@@ -41,7 +42,7 @@ public class Trade implements Serializable {
         this.setName(tradeDefault.getName());
         this.setFreshTime(tradeDefault.getFreshTime());
         this.setPrice(tradeDefault.getPrice());
-        this.setChange(tradeDefault.getChange());
+        this.setDiff(tradeDefault.getDiff());
         this.setRate(tradeDefault.getRate());
     }
 }

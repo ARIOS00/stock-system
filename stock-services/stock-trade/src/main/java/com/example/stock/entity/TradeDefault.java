@@ -1,6 +1,5 @@
 package com.example.stock.entity;
 
-import com.example.stock.serialization.TradeSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize()
@@ -10,7 +9,7 @@ public class TradeDefault extends Trade{
         this.setName(trade.getName());
         this.setFreshTime(trade.getFreshTime());
         this.setPrice(trade.getPrice());
-        this.setChange(trade.getChange());
+        this.setDiff(trade.getDiff());
         this.setRate(trade.getRate());
     }
 

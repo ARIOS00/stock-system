@@ -21,7 +21,7 @@ public class TradeSerialize extends JsonSerializer<Trade> {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         jsonGenerator.writeStringField("freshTime", simpleDateFormat.format(trade.getFreshTime()));
         jsonGenerator.writeStringField("price", trade.getPrice().toString());
-        jsonGenerator.writeStringField("change", trade.getChange().toString());
+        jsonGenerator.writeStringField("diff", trade.getDiff().toString());
         jsonGenerator.writeStringField("rate", trade.getRate().toString());
 
         jsonGenerator.writeEndObject();
