@@ -19,8 +19,9 @@ public class TradeDaoTest {
     @Test
     public void testSaveAndGet() {
         List<Trade> trades = tradeDao.findTradesByName("AAAA");
-        trades.get(0).setName("AAA");
-        tradeDao.save(mockTrade());
+        Trade t = trades.get(0);
+
+        tradeDao.save(t);
     }
 
     private Trade mockTrade() {
