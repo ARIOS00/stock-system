@@ -2,6 +2,7 @@ package com.example.stock.util;
 
 import com.example.stock.dao.TradeDao;
 import com.example.stock.entity.Trade;
+import com.example.stock.schedule.Submitter;
 import com.example.stock.vo.TradeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,16 +13,17 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 @Slf4j
-@Component
 public class DataSavePipelineThread extends Thread{
 
-    private final TradeDao tradeDao;
+    private TradeDao tradeDao;
+    private Submitter submitter;
     private Queue<TradeMessage> memoryQueue;
 
-    @Autowired
-    public DataSavePipelineThread(TradeDao tradeDao) {
+
+    public DataSavePipelineThread(TradeDao tradeDao, Submitter submitter) {
         this.memoryQueue = new LinkedList<>();
         this.tradeDao = tradeDao;
+        this.submitter = submitter;
     }
 
     @Override
@@ -41,6 +43,7 @@ public class DataSavePipelineThread extends Thread{
                     continue;
                 tradeDao.save(trade);
                 System.out.println(Thread.currentThread().getName() + ", offset: " + msg.getOffset() + ": "+ "completed!");
+                submitter.add(msg.getOffset());
             } catch (Exception e) {
                 e.printStackTrace();
             }

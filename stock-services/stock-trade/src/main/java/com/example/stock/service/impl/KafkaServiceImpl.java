@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.example.stock.consts.TradeConst;
 import com.example.stock.dao.TradeDao;
 import com.example.stock.entity.Trade;
+import com.example.stock.schedule.Submitter;
 import com.example.stock.service.IKafkaService;
 import com.example.stock.util.DataSavePipelineThread;
 import com.example.stock.util.TradeUtil;
@@ -30,19 +31,18 @@ public class KafkaServiceImpl implements IKafkaService {
     private final TradeDao tradeDao;
 
     private List<DataSavePipelineThread> pipelines;
+    private final Submitter submitter;
 
     @Autowired
-    private ConfigurableEnvironment environment;
-
-    @Autowired
-    public KafkaServiceImpl(KafkaListenerEndpointRegistry registry, ConsumerFactory<Object, Object> consumerFactory, TradeDao tradeDao) {
+    public KafkaServiceImpl(KafkaListenerEndpointRegistry registry, ConsumerFactory<Object, Object> consumerFactory, TradeDao tradeDao, Submitter submitter) {
         this.registry = registry;
         this.consumerFactory = consumerFactory;
         this.tradeDao = tradeDao;
+        this.submitter = submitter;
 
         this.pipelines = new LinkedList<>();
         for(int i = 0; i < TradeConst.THREAD_NUM; i++) {
-            pipelines.add(new DataSavePipelineThread(tradeDao));
+            pipelines.add(new DataSavePipelineThread(tradeDao, submitter));
             pipelines.get(i).start();
         }
     }
@@ -63,34 +63,7 @@ public class KafkaServiceImpl implements IKafkaService {
 
             pipelines.get((int) (record.offset() % TradeConst.THREAD_NUM)).add(tradeMessage);
         } catch (Exception e) {
-            log.error("save failed!");
+            log.error("message conversion failed!");
         }
     }
-
-    @Scheduled(initialDelay = 2000, fixedRate = 3000)
-    public void ini() {
-//        String src = "D:\\Full_Stack_Projects\\stock-system\\stock-services\\stock-trade\\src\\main\\resources\\application.yml";
-//        Yaml yaml = new Yaml();
-//        FileWriter fileWriter = null;
-//
-//        Map<String, Object> springMap, dataSourceMap, resultMap,helperDialect;
-//        try {
-//            resultMap = (Map<String, Object>) yaml.load(new FileInputStream(new File(src)));
-//            springMap = (Map<String, Object>) resultMap.get("spring");
-//            dataSourceMap = (Map<String, Object>) springMap.get("kafka");
-//
-//            dataSourceMap.put("initial-offset", "100");
-//
-//            fileWriter = new FileWriter(new File(src));
-//            fileWriter.write(yaml.dumpAsMap(resultMap));
-//
-//            fileWriter.flush();
-//            fileWriter.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new RuntimeException("yml modifying failed!");
-//        }
-
-    }
-
 }
