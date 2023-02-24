@@ -33,7 +33,7 @@ spring:
     port: 6379
     timeout: 10000
   kafka:
-    initial-offset: '111'
+    initial-offset: '112'
     bootstrap-servers: 127.0.0.1:9092
     consumer:
       group-id: stock-trade-x

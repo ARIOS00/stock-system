@@ -1,7 +1,12 @@
 package com.example.stock.util;
 
+import com.example.stock.dao.TradeDao;
+import com.example.stock.entity.Trade;
+import com.example.stock.vo.TradeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -9,10 +14,14 @@ import java.util.Queue;
 @Slf4j
 @Component
 public class DataSavePipelineThread extends Thread{
-    private Queue<String> memoryQueue;
 
-    public DataSavePipelineThread() {
+    private final TradeDao tradeDao;
+    private Queue<TradeMessage> memoryQueue;
+
+    @Autowired
+    public DataSavePipelineThread(TradeDao tradeDao) {
         this.memoryQueue = new LinkedList<>();
+        this.tradeDao = tradeDao;
     }
 
     @Override
@@ -20,18 +29,25 @@ public class DataSavePipelineThread extends Thread{
         while(true) {
             try {
                 Thread.sleep(1);
-                String res = memoryQueue.poll();
-                if(null == res)
+                if(null == memoryQueue || CollectionUtils.isEmpty(memoryQueue))
+                    continue;
+                TradeMessage msg = memoryQueue.poll();
+
+                if(null == msg)
                     continue;
 
-
+                Trade trade = msg.getTrade();
+                if(null == trade)
+                    continue;
+                tradeDao.save(trade);
+                System.out.println(Thread.currentThread().getName() + ", offset: " + msg.getOffset() + ": "+ "completed!");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void add(String str) {
-        memoryQueue.offer(str);
+    public void add(TradeMessage msg) {
+        memoryQueue.offer(msg);
     }
 }

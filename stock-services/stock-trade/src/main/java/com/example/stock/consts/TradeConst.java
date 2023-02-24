@@ -6,7 +6,6 @@ public class TradeConst {
 
     public static final String TOPIC = "trade";
 
-    @Value("${spring.kafka.consumer.initial_offset}")
-    public static String INITIAL_OFFSET;
+    public static final Integer THREAD_NUM = 3;
 
 }

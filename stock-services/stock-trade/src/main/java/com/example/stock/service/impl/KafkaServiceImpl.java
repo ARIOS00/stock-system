@@ -1,9 +1,13 @@
 package com.example.stock.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.example.stock.consts.TradeConst;
 import com.example.stock.dao.TradeDao;
+import com.example.stock.entity.Trade;
 import com.example.stock.service.IKafkaService;
 import com.example.stock.util.DataSavePipelineThread;
 import com.example.stock.util.TradeUtil;
+import com.example.stock.vo.TradeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +27,9 @@ public class KafkaServiceImpl implements IKafkaService {
 
     private final KafkaListenerEndpointRegistry registry;
     private final ConsumerFactory<Object, Object> consumerFactory;
+    private final TradeDao tradeDao;
 
     private List<DataSavePipelineThread> pipelines;
-
-    private final TradeDao tradeDao;
 
     @Autowired
     private ConfigurableEnvironment environment;
@@ -38,8 +41,8 @@ public class KafkaServiceImpl implements IKafkaService {
         this.tradeDao = tradeDao;
 
         this.pipelines = new LinkedList<>();
-        for(int i = 0; i < 3; i++) {
-            pipelines.add(new DataSavePipelineThread());
+        for(int i = 0; i < TradeConst.THREAD_NUM; i++) {
+            pipelines.add(new DataSavePipelineThread(tradeDao));
             pipelines.get(i).start();
         }
     }
@@ -53,11 +56,15 @@ public class KafkaServiceImpl implements IKafkaService {
         String message = kafkaMessage.get().toString();
         log.info("Receive CouponKafkaMessage: {}, offset: {}", message, record.offset());
         try {
-            tradeDao.save(TradeUtil.StringToTrade(message));
+            Trade trade = TradeUtil.StringToTrade(message);
+            TradeMessage tradeMessage = new TradeMessage();
+            tradeMessage.setTrade(trade);
+            tradeMessage.setOffset(record.offset());
+
+            pipelines.get((int) (record.offset() % TradeConst.THREAD_NUM)).add(tradeMessage);
         } catch (Exception e) {
             log.error("save failed!");
         }
-
     }
 
     @Scheduled(initialDelay = 2000, fixedRate = 3000)
@@ -85,4 +92,5 @@ public class KafkaServiceImpl implements IKafkaService {
 //        }
 
     }
+
 }
