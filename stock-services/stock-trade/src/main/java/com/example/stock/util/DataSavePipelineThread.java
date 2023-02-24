@@ -2,13 +2,15 @@ package com.example.stock.util;
 
 import com.example.stock.dao.TradeDao;
 import com.example.stock.entity.Trade;
+import com.example.stock.entity.TradeDefault;
 import com.example.stock.schedule.Submitter;
 import com.example.stock.vo.TradeMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
 
+import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -16,13 +18,17 @@ import java.util.Queue;
 public class DataSavePipelineThread extends Thread{
 
     private TradeDao tradeDao;
+    private RedisTemplate redisTemplate;
     private Submitter submitter;
+
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Queue<TradeMessage> memoryQueue;
 
 
-    public DataSavePipelineThread(TradeDao tradeDao, Submitter submitter) {
+    public DataSavePipelineThread(TradeDao tradeDao, RedisTemplate redisTemplate, Submitter submitter) {
         this.memoryQueue = new LinkedList<>();
         this.tradeDao = tradeDao;
+        this.redisTemplate = redisTemplate;
         this.submitter = submitter;
     }
 
@@ -31,21 +37,27 @@ public class DataSavePipelineThread extends Thread{
         while(true) {
             try {
                 Thread.sleep(1);
-                if(null == memoryQueue || CollectionUtils.isEmpty(memoryQueue))
-                    continue;
-                TradeMessage msg = memoryQueue.poll();
+            } catch (Exception e) {
+                continue;
+            }
 
+            if(null == memoryQueue || CollectionUtils.isEmpty(memoryQueue))
+                continue;
+            TradeMessage msg = memoryQueue.poll();
+            try {
                 if(null == msg)
                     continue;
 
                 Trade trade = msg.getTrade();
                 if(null == trade)
                     continue;
+                redisTemplate.opsForValue().set("trade:" + trade.getName() + ":" + format.format(trade.getFreshTime()), new TradeDefault(trade), Duration.ofDays(1));
                 tradeDao.save(trade);
-                System.out.println(Thread.currentThread().getName() + ", offset: " + msg.getOffset() + ": "+ "completed!");
-                submitter.add(msg.getOffset());
+                log.info(Thread.currentThread().getName() + ", offset: " + msg.getOffset() + ": "+ "completed!");
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                submitter.add(msg.getOffset());
             }
         }
     }

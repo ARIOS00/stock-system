@@ -5,6 +5,7 @@ import com.example.stock.consts.TradeConst;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -13,10 +14,10 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.util.Comparator;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -36,7 +37,7 @@ public class Submitter {
         this.lock = new ReentrantLock();
     }
 
-    @Scheduled(initialDelay = 2000, fixedDelay = 5000)
+    @Scheduled(initialDelay = 2000, fixedDelay = 7000)
     public void submit() {
         lock.lock();
         try {
@@ -55,7 +56,7 @@ public class Submitter {
             Yaml yaml = new Yaml();
             FileWriter fileWriter = null;
 
-            Map<String, Object> springMap, dataSourceMap, resultMap,helperDialect;
+            Map<String, Object> springMap, dataSourceMap, resultMap, helperDialect;
 
             resultMap = (Map<String, Object>) yaml.load(new FileInputStream(new File(src)));
             springMap = (Map<String, Object>) resultMap.get("spring");
@@ -68,6 +69,7 @@ public class Submitter {
 
             fileWriter.flush();
             fileWriter.close();
+
             log.info("initial offset submitted: {}", initialOffset);
         } catch (Exception e) {
             e.printStackTrace();

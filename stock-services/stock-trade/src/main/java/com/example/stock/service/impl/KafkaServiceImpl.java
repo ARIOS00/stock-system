@@ -1,6 +1,5 @@
 package com.example.stock.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.example.stock.consts.TradeConst;
 import com.example.stock.dao.TradeDao;
 import com.example.stock.entity.Trade;
@@ -12,12 +11,11 @@ import com.example.stock.vo.TradeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.PartitionOffset;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,20 +27,23 @@ public class KafkaServiceImpl implements IKafkaService {
     private final KafkaListenerEndpointRegistry registry;
     private final ConsumerFactory<Object, Object> consumerFactory;
     private final TradeDao tradeDao;
-
-    private List<DataSavePipelineThread> pipelines;
+    private final RedisTemplate redisTemplate;
     private final Submitter submitter;
 
+    private List<DataSavePipelineThread> pipelines;
+
+
     @Autowired
-    public KafkaServiceImpl(KafkaListenerEndpointRegistry registry, ConsumerFactory<Object, Object> consumerFactory, TradeDao tradeDao, Submitter submitter) {
+    public KafkaServiceImpl(KafkaListenerEndpointRegistry registry, ConsumerFactory<Object, Object> consumerFactory, TradeDao tradeDao, RedisTemplate redisTemplate, Submitter submitter) {
         this.registry = registry;
         this.consumerFactory = consumerFactory;
         this.tradeDao = tradeDao;
+        this.redisTemplate = redisTemplate;
         this.submitter = submitter;
 
         this.pipelines = new LinkedList<>();
         for(int i = 0; i < TradeConst.THREAD_NUM; i++) {
-            pipelines.add(new DataSavePipelineThread(tradeDao, submitter));
+            pipelines.add(new DataSavePipelineThread(tradeDao, redisTemplate, submitter));
             pipelines.get(i).start();
         }
     }

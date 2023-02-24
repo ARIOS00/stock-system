@@ -1,12 +1,10 @@
 package com.example.stock.util;
 
-import com.alibaba.fastjson.JSON;
 import com.example.stock.dao.KlineDao;
 import com.google.common.base.Charsets;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
