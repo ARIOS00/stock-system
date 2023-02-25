@@ -11,6 +11,8 @@ import java.util.Set;
 public interface TradeDao extends JpaRepository<Trade, Integer> {
     List<Trade> findTradesByName(String name);
 
+    Trade findTradeByNameAndFreshTime(String name, Date freshTime);
+
     @Query("SELECT t.name FROM Trade t")
     Set<String> findAllNames();
 

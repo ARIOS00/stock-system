@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -19,26 +21,14 @@ public class TradeDaoTest {
     private TradeDao tradeDao;
 
     @Test
-    public void testSaveAndGet() {
-        List<Trade> trades = tradeDao.findTradesByName("AAAA");
-        Trade t = trades.get(0);
-
-        tradeDao.save(t);
+    public void testSaveAndGet() throws ParseException {
+        Trade trade = tradeDao.findTradeByNameAndFreshTime("GOOG", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2023-02-24 12:59:00"));
+        System.out.println(JSON.toJSONString(trade));
+        List<Trade> prices = tradeDao.findTradesByName("AMZN");
+        System.out.println(JSON.toJSONString(prices));
     }
 
-    @Test
-    public void pq() {
-        PriorityQueue<Integer> queue = new PriorityQueue<>((num1, num2) -> num1 - num2);
-        queue.add(2);
-        queue.add(5);
-        queue.add(1);
-        queue.add(9);
-        queue.add(0);
-        while(queue.size() != 0){
-            System.out.println(queue.poll());
-        }
 
-    }
 
     private Trade mockTrade() {
         Trade trade = new Trade();

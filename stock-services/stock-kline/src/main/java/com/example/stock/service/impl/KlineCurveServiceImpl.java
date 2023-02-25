@@ -179,3 +179,4 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
         return klines;
     }
 }
+
