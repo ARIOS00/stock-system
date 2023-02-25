@@ -161,6 +161,7 @@ public class KlineCurveServiceImpl implements IKlineCurveService {
         Kline kline = klineDao.findKlineByNameAndKdate(name, date);
         if(null == kline) {
             log.error("cannot find " + key + " in database!");
+            return null;
         }
         redisTemplate.opsForValue().set(key, new KlineDefault(kline));
         Integer expiration = new Random().nextInt(KlineConst.EXPIRE_SEED) + KlineConst.EXPIRE_SEED;

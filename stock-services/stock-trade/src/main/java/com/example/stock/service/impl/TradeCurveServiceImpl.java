@@ -1,6 +1,5 @@
 package com.example.stock.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.example.stock.dao.TradeDao;
 import com.example.stock.entity.Trade;
 import com.example.stock.entity.TradeDefault;
@@ -31,12 +30,16 @@ public class TradeCurveServiceImpl implements ITradeCurveService {
 
     private final RedisTemplate redisTemplate;
 
+    private static SimpleDateFormat keySimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:");
+
     @Autowired
     public TradeCurveServiceImpl(GoogleBloomFilter bloomFilter, TradeDao tradeDao, RedisTemplate redisTemplate) {
         this.bloomFilter = bloomFilter;
         this.tradeDao = tradeDao;
         this.redisTemplate = redisTemplate;
     }
+
+
 
     @Override
     public List<Trade> getTradeCurveByName(String name) throws TradeException, ParseException {
@@ -61,7 +64,7 @@ public class TradeCurveServiceImpl implements ITradeCurveService {
         String baseKey = "trade:" + name + ":";
 
         while(currentDay.before(endDay) || currentDay.equals(endDay)) {
-            String key = baseKey + new SimpleDateFormat("yyyy-MM-dd HH:mm:").format(currentDay.getTime());
+            String key = baseKey + keySimpleDateFormat.format(currentDay.getTime());
             key += "00";
             keys.add(key);
             dates.add(currentDay.getTime());
@@ -95,8 +98,36 @@ public class TradeCurveServiceImpl implements ITradeCurveService {
         redisTemplate.executePipelined(sessionCallback);
         log.info("Redis Pipeline executed!");
 
-
         return objectsToTrades(objects);
+    }
+
+    @Override
+    public Trade getTradeByNameAndTime(String name, Date freshTime) throws TradeException, ParseException {
+        if(!bloomFilter.nameIsExist(name)){
+            log.warn("no such name in bloom filter!");
+            return null;
+        }
+
+        String key = "trade:" + name + ":" + keySimpleDateFormat.format(freshTime) + "00";
+        TradeDefault tradeDefault = (TradeDefault) redisTemplate.opsForValue().get(key);
+
+        if(null != tradeDefault && null == tradeDefault.getName()){
+            log.warn("no such freshTime in db!");
+            return null;
+        }
+
+        if(null != tradeDefault)
+            return new Trade(tradeDefault);
+
+        Trade trade = tradeDao.findTradeByNameAndFreshTime(name, freshTime);
+        if(null == trade){
+            log.error("cannot find " + key + "in database!");
+            redisTemplate.opsForValue().set(key, new TradeDefault(), Duration.ofDays(1));
+            return null;
+        }
+
+        redisTemplate.opsForValue().set(key, new TradeDefault(trade), Duration.ofDays(1));
+        return trade;
     }
 
     private Date getTradeStartDate() throws ParseException {
