@@ -24,7 +24,6 @@ public class DataSavePipelineThread extends Thread{
     private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Queue<TradeMessage> memoryQueue;
 
-
     public DataSavePipelineThread(TradeDao tradeDao, RedisTemplate redisTemplate, Submitter submitter) {
         this.memoryQueue = new LinkedList<>();
         this.tradeDao = tradeDao;
