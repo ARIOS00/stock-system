@@ -9,10 +9,10 @@ eureka:
   instance:
     hostname: localhost
   client:
-    fetch-registry: false
-    register-with-eureka: false
+    fetch-registry: true
+    register-with-eureka: true
     service-url:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+      defaultZone: http://${eureka.instance.hostname}:8000/eureka,http://${eureka.instance.hostname}:8001/eureka
   server:
-    enable-self-preservation: false
+    enable-self-preservation: true
 #    renewal-percent-threshold: 0.45
