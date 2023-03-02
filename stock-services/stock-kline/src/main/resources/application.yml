@@ -37,6 +37,8 @@ spring:
     # password:
     # 连接超时时间
     timeout: 10000
+    cluster:
+      nodes: "stockcache.mtrwje.clustercfg.use2.cache.amazonaws.com:6379"
 
 eureka:
   client:

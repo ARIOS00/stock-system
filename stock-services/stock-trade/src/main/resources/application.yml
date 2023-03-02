@@ -32,6 +32,8 @@ spring:
     host: 127.0.0.1
     port: 6379
     timeout: 10000
+    cluster:
+      nodes: "stockcache.mtrwje.clustercfg.use2.cache.amazonaws.com:6379"
   kafka:
     initial-offset: '1574'
     bootstrap-servers: 127.0.0.1:9092
