@@ -31,30 +31,30 @@ public class RedisClusterConfig {
     @Value("${redis.refreshTime:5}")
     private int refreshTime;
 
-    @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
-
-        RedisClusterConfiguration redisClusterConfiguration = new RedisClusterConfiguration(redisProperties.getCluster().getNodes());
-
-        redisClusterConfiguration.setMaxRedirects(maxRedirects);
-
-        //支持自适应集群拓扑刷新和静态刷新源
-        ClusterTopologyRefreshOptions clusterTopologyRefreshOptions =  ClusterTopologyRefreshOptions.builder()
-                .enablePeriodicRefresh()
-                .enableAllAdaptiveRefreshTriggers()
-                .refreshPeriod(Duration.ofSeconds(refreshTime))
-                .build();
-
-        ClusterClientOptions clusterClientOptions = ClusterClientOptions.builder()
-                .topologyRefreshOptions(clusterTopologyRefreshOptions).build();
-
-        //从优先，读写分离，读从可能存在不一致，最终一致性CP
-        LettuceClientConfiguration lettuceClientConfiguration = LettuceClientConfiguration.builder()
-                .readFrom(ReadFrom.SLAVE_PREFERRED)
-                .clientOptions(clusterClientOptions).build();
-
-        return new LettuceConnectionFactory(redisClusterConfiguration, lettuceClientConfiguration);
-    }
+//    @Bean
+//    public LettuceConnectionFactory redisConnectionFactory() {
+//
+//        RedisClusterConfiguration redisClusterConfiguration = new RedisClusterConfiguration(redisProperties.getCluster().getNodes());
+//
+//        redisClusterConfiguration.setMaxRedirects(maxRedirects);
+//
+//        //支持自适应集群拓扑刷新和静态刷新源
+//        ClusterTopologyRefreshOptions clusterTopologyRefreshOptions =  ClusterTopologyRefreshOptions.builder()
+//                .enablePeriodicRefresh()
+//                .enableAllAdaptiveRefreshTriggers()
+//                .refreshPeriod(Duration.ofSeconds(refreshTime))
+//                .build();
+//
+//        ClusterClientOptions clusterClientOptions = ClusterClientOptions.builder()
+//                .topologyRefreshOptions(clusterTopologyRefreshOptions).build();
+//
+//        //从优先，读写分离，读从可能存在不一致，最终一致性CP
+//        LettuceClientConfiguration lettuceClientConfiguration = LettuceClientConfiguration.builder()
+//                .readFrom(ReadFrom.SLAVE_PREFERRED)
+//                .clientOptions(clusterClientOptions).build();
+//
+//        return new LettuceConnectionFactory(redisClusterConfiguration, lettuceClientConfiguration);
+//    }
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(LettuceConnectionFactory redisConnectionFactory) {
