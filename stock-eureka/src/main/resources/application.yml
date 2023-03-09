@@ -8,6 +8,9 @@ server:
 eureka:
   instance:
     hostname: localhost
+    lease-expiration-duration-in-seconds: 20
+    lease-renewal-interval-in-seconds: 10
+
   client:
     fetch-registry: true
     register-with-eureka: true
