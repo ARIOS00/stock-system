@@ -19,6 +19,7 @@
         <module>stock-common</module>
         <module>stock-kline</module>
         <module>stock-trade</module>
+        <module>stock-order</module>
     </modules>
 
 </project>

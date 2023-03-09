@@ -8,11 +8,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="stock-common" />
-        <module name="stock-gateway" />
         <module name="stock-eureka" />
-        <module name="stock-trade" />
-        <module name="stock-users" />
         <module name="stock-kline" />
+        <module name="stock-gateway" />
+        <module name="stock-trade" />
+        <module name="stock-order" />
+        <module name="stock-users" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -27,6 +28,7 @@
       <module name="stock-eureka" options="-parameters" />
       <module name="stock-gateway" options="-parameters" />
       <module name="stock-kline" options="-parameters" />
+      <module name="stock-order" options="-parameters" />
       <module name="stock-services" options="" />
       <module name="stock-test" options="-parameters" />
       <module name="stock-trade" options="-parameters" />

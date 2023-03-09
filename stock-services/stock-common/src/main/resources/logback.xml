@@ -12,7 +12,6 @@
             <level>INFO</level>
         </filter>
 
-        <!--encoder 可以指定字符集，对于中文输出有意义，pattern 包含的日志输出格式-->
         <encoder charset="UTF-8">
             <pattern>${CONSOLE_LOG_PATTERN}</pattern>
             <charset>utf8</charset>
@@ -21,7 +20,6 @@
 
     <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
 
-        <!-- 指定地址，ip+端口，以及 指定字符集-->
         <destination>192.168.1.7:4560</destination>
         <encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
