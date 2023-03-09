@@ -1,5 +1,7 @@
 package com.example.stock.entity;
 
+import com.example.stock.serialization.AmountSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +15,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@JsonSerialize(using = AmountSerialize.class)
 @Table(name = "stock_amount")
 public class Amount implements Serializable {
     @Id
