@@ -30,29 +30,21 @@ public class DataSavePipelineThread extends Thread{
         this.redisTemplate = redisTemplate;
         this.submitter = submitter;
     }
-
     @Override
     public void run() {
-        while(true) {
-            try {
-                Thread.sleep(1);
-            } catch (Exception e) {
-                continue;
-            }
-
-            if(null == memoryQueue || CollectionUtils.isEmpty(memoryQueue))
-                continue;
+        if(null == memoryQueue || CollectionUtils.isEmpty(memoryQueue))
+            return;
+        while(!CollectionUtils.isEmpty(memoryQueue)) {
             TradeMessage msg = memoryQueue.poll();
+            if(null == msg)
+                continue;
             try {
-                if(null == msg)
-                    continue;
-
                 Trade trade = msg.getTrade();
                 if(null == trade)
                     continue;
                 redisTemplate.opsForValue().set("trade:" + trade.getName() + ":" + format.format(trade.getFreshTime()), new TradeDefault(trade), Duration.ofDays(1));
                 tradeDao.save(trade);
-                log.info(Thread.currentThread().getName() + ", offset: " + msg.getOffset() + ": "+ "completed!");
+                log.info("{}, offset: {}: completed!, memoryQueue {} remain", Thread.currentThread().getName(), msg.getOffset(), memoryQueue.size());
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -60,6 +52,36 @@ public class DataSavePipelineThread extends Thread{
             }
         }
     }
+
+//    @Override
+//    public void run() {
+//        while(true) {
+//            try {
+//                Thread.sleep(1);
+//            } catch (Exception e) {
+//                continue;
+//            }
+//
+//            if(null == memoryQueue || CollectionUtils.isEmpty(memoryQueue))
+//                continue;
+//            TradeMessage msg = memoryQueue.poll();
+//            try {
+//                if(null == msg)
+//                    continue;
+//
+//                Trade trade = msg.getTrade();
+//                if(null == trade)
+//                    continue;
+//                redisTemplate.opsForValue().set("trade:" + trade.getName() + ":" + format.format(trade.getFreshTime()), new TradeDefault(trade), Duration.ofDays(1));
+//                tradeDao.save(trade);
+//                log.info(Thread.currentThread().getName() + ", offset: " + msg.getOffset() + ": "+ "completed!");
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            } finally {
+//                submitter.add(msg.getOffset());
+//            }
+//        }
+//    }
 
     public void add(TradeMessage msg) {
         memoryQueue.offer(msg);

@@ -44,13 +44,12 @@ public class KafkaServiceImpl implements IKafkaService {
         this.pipelines = new LinkedList<>();
         for(int i = 0; i < TradeConst.THREAD_NUM; i++) {
             pipelines.add(new DataSavePipelineThread(tradeDao, redisTemplate, submitter));
-            pipelines.get(i).start();
         }
     }
     @Override
     @KafkaListener(id = "stock-trade-1", topicPartitions =
             { @org.springframework.kafka.annotation.TopicPartition(topic = "trade", partitionOffsets = @PartitionOffset(partition = "0", initialOffset = "${spring.kafka.initial-offset}"))})
-    public void ConsumeTradeKafkaMessage(ConsumerRecord<?, ?> record) {
+    public void consumeTradeKafkaMessage(ConsumerRecord<?, ?> record) {
         Optional<?> kafkaMessage = Optional.ofNullable(record.value());
         if(!kafkaMessage.isPresent())
             return;
@@ -61,9 +60,13 @@ public class KafkaServiceImpl implements IKafkaService {
             TradeMessage tradeMessage = new TradeMessage();
             tradeMessage.setTrade(trade);
             tradeMessage.setOffset(record.offset());
-
-            pipelines.get((int) (record.offset() % TradeConst.THREAD_NUM)).add(tradeMessage);
+            int threadId = (int) (record.offset() % TradeConst.THREAD_NUM);
+            DataSavePipelineThread pipline = pipelines.get(threadId);
+            pipline.add(tradeMessage);
+            if(!pipline.isAlive())
+                pipline.start();
         } catch (Exception e) {
+            e.printStackTrace();
             log.error("message conversion failed!");
         }
     }

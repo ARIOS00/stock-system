@@ -79,7 +79,7 @@ public class Submitter {
         }
     }
 
-    public synchronized void add(Long num) {
+    public void add(Long num) {
         lock.lock();
         priorityQueue.add(num);
         lock.unlock();
