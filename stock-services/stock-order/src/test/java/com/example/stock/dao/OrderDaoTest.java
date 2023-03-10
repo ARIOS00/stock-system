@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -14,7 +15,15 @@ import java.util.List;
 @RunWith(SpringRunner.class)
 public class OrderDaoTest {
     @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @Autowired
     private OrderDao orderDao;
+
+    @Test
+    public void testRedisCluster() {
+        System.out.println(redisTemplate.opsForValue().get("test_key"));
+    }
 
     @Test
     public void testOrderDao() {

@@ -32,6 +32,9 @@ spring:
     host: 127.0.0.1
     port: 6379
     timeout: 10000
+    cluster:
+      nodes: "stock.redis.cache.windows.net:6379"
+    password: "Lfg82s6BwxKESKTzA4l07OLQRNi3rhBOKAzCaHaQr8A="
 
 eureka:
   client:
