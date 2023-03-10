@@ -61,10 +61,10 @@ public class KafkaServiceImpl implements IKafkaService {
             tradeMessage.setTrade(trade);
             tradeMessage.setOffset(record.offset());
             int threadId = (int) (record.offset() % TradeConst.THREAD_NUM);
-            DataSavePipelineThread pipline = pipelines.get(threadId);
-            pipline.add(tradeMessage);
-            if(!pipline.isAlive())
-                pipline.start();
+            DataSavePipelineThread pipeline = pipelines.get(threadId);
+            pipeline.add(tradeMessage);
+            if(!pipeline.isAlive())
+                pipeline.start();
         } catch (Exception e) {
             e.printStackTrace();
             log.error("message conversion failed!");

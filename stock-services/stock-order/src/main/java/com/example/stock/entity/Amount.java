@@ -15,7 +15,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@JsonSerialize(using = AmountSerialize.class)
+@JsonSerialize()
 @Table(name = "stock_amount")
 public class Amount implements Serializable {
     @Id
