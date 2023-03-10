@@ -9,4 +9,6 @@ public interface OrderDao extends JpaRepository<Order, Integer> {
     List<Order> findAllByStockName(String stockName);
 
     List<Order> findAllByUserId(Long userId);
+
+    Order findByEmailAndStockName(String email, String stockName);
 }
